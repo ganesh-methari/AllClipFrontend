@@ -201,18 +201,27 @@ function App() {
   const [url, setUrl] = useState("");
   const [video, setVideo] = useState(null);
   const [loading, setLoading] = useState(false);
+
   const getinfo = async () => {
+
+    const backendURL = "https://allclipbackend.onrender.com/info";
+
     if (!url) return alert("Enter a valid URL");
+
     try {
       setLoading(true);
-      const res = await axios.post("http://localhost:5000/info", { url });
+      const res = await axios.post(backendURL, { url });
       setVideo(res.data);
-    } catch (err) {
+    }
+    catch (err) {
       console.error(err);
       alert("Failed to fetch video info");
-    } finally {
+    }
+
+    finally {
       setLoading(false);
     }
+
   };
 
 return (
