@@ -58,201 +58,141 @@
 
 // code export default Hero
 
-
-// import { useState } from "react";
-// import axios from "axios";
-
-// function VideoDownloader() {
-//   const [url, setUrl] = useState("");
-//   const [video, setVideo] = useState(null);
-//   const [loading, setLoading] = useState(false);
-//   const [error, setError] = useState("");
-
-//   /* ================= GET VIDEO INFO ================= */
-//   const getInfo = async () => {
-//     if (!url) {
-//       setError("Please enter a valid video URL");
-//       return;
-//     }
-
-//     try {
-//       setLoading(true);
-//       setError("");
-//       setVideo(null);
-
-//       const res = await axios.post(
-//         "http://localhost:5000/video/info",
-//         { url }
-//       );
-
-//       setVideo(res.data);
-//     } catch (err) {
-//       console.error(err);
-//       const msg =
-//         err.response?.data?.error || "Failed to fetch video info";
-//       setError(msg);
-//     } finally {
-//       setLoading(false);
-//     }
-//   };
-
-//   /* ================= DOWNLOAD VIDEO ================= */
-//   const download = () => {
-//     if (!url) {
-//       setError("Enter a valid URL");
-//       return;
-//     }
-
-//     const link = document.createElement("a");
-//     link.href =
-//       "http://localhost:5000/video/download?url=" +
-//       encodeURIComponent(url);
-//     link.click();
-//   };
-
-//   return (
-//     <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-//       <div className="bg-white shadow-lg rounded-xl p-6 w-full max-w-xl text-center">
-
-//         <h2 className="text-2xl font-bold mb-4">
-//           🎬 Video Downloader
-//         </h2>
-
-//         {/* INPUT */}
-//         <input
-//           type="text"
-//           value={url}
-//           onChange={(e) => setUrl(e.target.value)}
-//           placeholder="Paste video URL (YouTube, Instagram, Facebook...)"
-//           className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-//         />
-
-//         {/* BUTTONS */}
-//         <div className="flex gap-3 justify-center mt-4">
-//           <button
-//             onClick={getInfo}
-//             className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg"
-//           >
-//             Get Info
-//           </button>
-
-//           {video && (
-//             <button
-//               onClick={download}
-//               className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg"
-//             >
-//               Download MP4
-//             </button>
-//           )}
-//         </div>
-
-//         {/* LOADING */}
-//         {loading && (
-//           <p className="mt-4 text-gray-600 animate-pulse">
-//             Loading...
-//           </p>
-//         )}
-
-//         {/* ERROR */}
-//         {error && (
-//           <p className="mt-4 text-red-500 font-medium">
-//             {error}
-//           </p>
-//         )}
-
-//         {/* VIDEO INFO */}
-//         {video && (
-//           <div className="mt-6 border rounded-lg p-4">
-//             <h3 className="font-semibold mb-2">
-//               {video.title}
-//             </h3>
-
-//             {video.thumbnail && (
-//               <img
-//                 src={video.thumbnail}
-//                 alt="thumbnail"
-//                 className="mx-auto rounded-lg"
-//               />
-//             )}
-
-//             <p className="text-sm text-gray-600 mt-2">
-//               {video.uploader}
-//             </p>
-
-//             <p className="text-sm text-gray-500">
-//               Duration:{" "}
-//               {Math.floor(video.duration / 60)}:
-//               {String(video.duration % 60).padStart(2, "0")}
-//             </p>
-//           </div>
-//         )}
-//       </div>
-//     </div>
-//   );
-// }
-
-// export default VideoDownloader;
-
-
 import { useState } from "react";
 import axios from "axios";
 
-function App() {
+function AudioDownloader() {
   const [url, setUrl] = useState("");
-  const [video, setVideo] = useState(null);
+  const [audio, setAudio] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
- const getinfo = async () => {
-  if (!url) return alert("Enter a valid URL");
-  try {
-    setLoading(true);
-    const res = await axios.post(
-      "https://allclipbackend.onrender.com/info",
-      { url }
-    );
-    setVideo(res.data);
-  } catch (err) {
-    console.error(err);
-    alert("Failed to fetch video info");
-  } finally {
-    setLoading(false);
-  }
-};
+  const API = "http://localhost:5000/media";
 
-return (
-  <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-    <div className="bg-white shadow-lg rounded-xl p-6 w-full max-w-xl text-center">
-      <h2 className="text-2xl font-bold mb-4">🎬 Video Downloader</h2>
-      <input 
-        type="text" 
-        value={url}
-        onChange={(e) => setUrl(e.target.value)}
-        placeholder="Paste video URL (YouTube, Instagram, Facebook...)"
-        className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-      />
-      <button onClick={getinfo} className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg mt-4">
-       {loading ? "Loading..." : "Get Info"}
-      </button>
-      {video && (
-        <div className="mt-6 border rounded-lg p-4">
-          <h3 className="font-semibold mb-2">{video.title}</h3>
-          <h3 className="font-semibold mb-2">{video.duration}</h3>
-          <h3 className="font-semibold mb-2">{video.uploader}</h3>
-          <h3 className="font-semibold mb-2">{video._type}</h3>
+  /* ================= GET INFO ================= */
+  const getInfo = async () => {
+    if (!url) {
+      setError("Please enter a valid URL");
+      return;
+    }
 
-          {video.thumbnail && (
-            <img src={video.thumbnail} alt="thumbnail" className="mx-auto rounded-lg" />
+    try {
+      setLoading(true);
+      setError("");
+      setAudio(null);
+
+      const res = await axios.post(`${API}/info`, { url });
+      setAudio(res.data);
+    } catch (err) {
+      setError(
+        err.response?.data?.details ||
+        err.response?.data?.error ||
+        "Failed to fetch info"
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  /* ================= DOWNLOAD MP3 ================= */
+  const download = () => {
+    if (!url) {
+      setError("Enter a valid URL");
+      return;
+    }
+
+    const link = document.createElement("a");
+    link.href = `${API}/download?url=${encodeURIComponent(url)}`;
+    link.click();
+  };
+
+  /* ================= FORMAT TIME ================= */
+  const formatTime = (sec) => {
+    if (!sec) return "0:00";
+    const m = Math.floor(sec / 60);
+    const s = sec % 60;
+    return `${m}:${s.toString().padStart(2, "0")}`;
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+      <div className="bg-white shadow-xl rounded-xl p-6 w-full max-w-xl text-center">
+
+        <h2 className="text-2xl font-bold mb-4">
+          🎧 Audio Downloader (MP3)
+        </h2>
+
+        {/* INPUT */}
+        <input
+          type="text"
+          value={url}
+          onChange={(e) => setUrl(e.target.value)}
+          placeholder="Paste YouTube / SoundCloud URL..."
+          className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+
+        {/* BUTTONS */}
+        <div className="flex gap-3 justify-center mt-4">
+          <button
+            onClick={getInfo}
+            disabled={loading}
+            className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg disabled:opacity-50"
+          >
+            Get Info
+          </button>
+
+          {audio && (
+            <button
+              onClick={download}
+              className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg"
+            >
+              Download MP3
+            </button>
           )}
+        </div>
 
+        {/* LOADING */}
+        {loading && (
+          <p className="mt-4 text-gray-600 animate-pulse">
+            Fetching audio info...
+          </p>
+        )}
+
+        {/* ERROR */}
+        {error && (
+          <p className="mt-4 text-red-500 font-medium">
+            {error}
+          </p>
+        )}
+
+        {/* AUDIO INFO */}
+        {audio && (
+          <div className="mt-6 border rounded-lg p-4">
+
+            <h3 className="font-semibold text-lg mb-2">
+              {audio.title}
+            </h3>
+
+            {audio.thumbnail && (
+              <img
+                src={audio.thumbnail}
+                alt="thumbnail"
+                className="mx-auto rounded-lg mb-3"
+              />
+            )}
+
+            <p className="text-sm text-gray-600">
+              🎤 {audio.uploader}
+            </p>
+
+            <p className="text-sm text-gray-500">
+              ⏱ Duration: {formatTime(audio.duration)}
+            </p>
+          </div>
+        )}
+      </div>
     </div>
- )}
-    </div>
-  </div>
-);
-
-
+  );
 }
 
-
-
-export default App;
+export default AudioDownloader;
