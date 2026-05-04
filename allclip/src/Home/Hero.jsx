@@ -56,17 +56,22 @@
 // };
 //
 
-// code export default Hero
+// code export default Hero;
+
+
+
+
 import { useState } from "react";
 import axios from "axios";
 
-function AudioDownloader() {
+function App() {
   const [url, setUrl] = useState("");
   const [audio, setAudio] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-const API = "https://allclipbackend.onrender.com/music";
+  const API = "https://allclipbackend.onrender.com/music";
+  // const API = "http://localhost:5000/music";
 
   const getInfo = async () => {
     if (!url) return setError("Enter URL");
@@ -79,7 +84,8 @@ const API = "https://allclipbackend.onrender.com/music";
       const res = await axios.post(`${API}/info`, { url });
       setAudio(res.data);
     } catch (err) {
-      setError("Failed to fetch info");
+      console.log(err.response?.data);
+      setError(err.response?.data?.error || "Failed");
     } finally {
       setLoading(false);
     }
@@ -136,9 +142,7 @@ const API = "https://allclipbackend.onrender.com/music";
           )}
         </div>
 
-        {error && (
-          <p className="text-red-500 mt-3">{error}</p>
-        )}
+        {error && <p className="text-red-500 mt-3">{error}</p>}
 
         {audio && (
           <div className="mt-5 border p-4 rounded-lg">
@@ -153,9 +157,7 @@ const API = "https://allclipbackend.onrender.com/music";
             )}
 
             <p className="text-sm mt-2">🎤 {audio.uploader}</p>
-            <p className="text-sm">
-              ⏱ {formatTime(audio.duration)}
-            </p>
+            <p className="text-sm">⏱ {formatTime(audio.duration)}</p>
           </div>
         )}
       </div>
@@ -163,4 +165,4 @@ const API = "https://allclipbackend.onrender.com/music";
   );
 }
 
-export default AudioDownloader;
+export default App;
