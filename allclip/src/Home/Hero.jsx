@@ -68,7 +68,6 @@ function AudioDownloader() {
 
   const API = "https://allclip.onrender.com/music";
 
-  /* ================= GET INFO ================= */
   const getInfo = async () => {
     if (!url) return setError("Enter URL");
 
@@ -86,18 +85,15 @@ function AudioDownloader() {
     }
   };
 
-  /* ================= DOWNLOAD ================= */
   const download = () => {
     if (!url) return setError("Enter URL");
 
-    // ✅ SAFE DOWNLOAD (no popup issue)
     window.open(
       `${API}/download?url=${encodeURIComponent(url)}`,
       "_blank"
     );
   };
 
-  /* ================= FORMAT ================= */
   const formatTime = (sec) => {
     if (!sec) return "0:00";
     const m = Math.floor(sec / 60);
@@ -113,7 +109,6 @@ function AudioDownloader() {
           🎧 Audio Downloader
         </h2>
 
-        {/* INPUT */}
         <input
           type="text"
           placeholder="Paste YouTube URL..."
@@ -122,7 +117,6 @@ function AudioDownloader() {
           className="w-full p-3 border rounded-lg"
         />
 
-        {/* BUTTONS */}
         <div className="flex gap-3 justify-center mt-4">
           <button
             onClick={getInfo}
@@ -142,12 +136,10 @@ function AudioDownloader() {
           )}
         </div>
 
-        {/* ERROR */}
         {error && (
           <p className="text-red-500 mt-3">{error}</p>
         )}
 
-        {/* INFO */}
         {audio && (
           <div className="mt-5 border p-4 rounded-lg">
             <h3 className="font-bold">{audio.title}</h3>
