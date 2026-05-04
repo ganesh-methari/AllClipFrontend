@@ -67,7 +67,8 @@ function AudioDownloader() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const API = "http://localhost:5000/media";
+  // const API = "http://localhost:5000/media";
+  const API = "https://allclip.onrender.com/media";
 
   /* ================= GET INFO ================= */
   const getInfo = async () => {
