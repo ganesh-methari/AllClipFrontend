@@ -57,7 +57,6 @@
 //
 
 // code export default Hero
-
 import { useState } from "react";
 import axios from "axios";
 
@@ -67,15 +66,11 @@ function AudioDownloader() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  // const API = "http://localhost:5000/media";
   const API = "https://allclip.onrender.com/media";
 
   /* ================= GET INFO ================= */
   const getInfo = async () => {
-    if (!url) {
-      setError("Please enter a valid URL");
-      return;
-    }
+    if (!url) return setError("Enter URL");
 
     try {
       setLoading(true);
@@ -85,29 +80,24 @@ function AudioDownloader() {
       const res = await axios.post(`${API}/info`, { url });
       setAudio(res.data);
     } catch (err) {
-      setError(
-        err.response?.data?.details ||
-        err.response?.data?.error ||
-        "Failed to fetch info"
-      );
+      setError("Failed to fetch info");
     } finally {
       setLoading(false);
     }
   };
 
-  /* ================= DOWNLOAD MP3 ================= */
+  /* ================= DOWNLOAD ================= */
   const download = () => {
-    if (!url) {
-      setError("Enter a valid URL");
-      return;
-    }
+    if (!url) return setError("Enter URL");
 
-    const link = document.createElement("a");
-    link.href = `${API}/download?url=${encodeURIComponent(url)}`;
-    link.click();
+    // ✅ SAFE DOWNLOAD (no popup issue)
+    window.open(
+      `${API}/download?url=${encodeURIComponent(url)}`,
+      "_blank"
+    );
   };
 
-  /* ================= FORMAT TIME ================= */
+  /* ================= FORMAT ================= */
   const formatTime = (sec) => {
     if (!sec) return "0:00";
     const m = Math.floor(sec / 60);
@@ -116,20 +106,20 @@ function AudioDownloader() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-      <div className="bg-white shadow-xl rounded-xl p-6 w-full max-w-xl text-center">
+    <div className="min-h-screen flex items-center justify-center bg-gray-100">
+      <div className="bg-white p-6 rounded-xl shadow-xl w-full max-w-xl text-center">
 
         <h2 className="text-2xl font-bold mb-4">
-          🎧 Audio Downloader (MP3)
+          🎧 Audio Downloader
         </h2>
 
         {/* INPUT */}
         <input
           type="text"
+          placeholder="Paste YouTube URL..."
           value={url}
           onChange={(e) => setUrl(e.target.value)}
-          placeholder="Paste YouTube / SoundCloud URL..."
-          className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full p-3 border rounded-lg"
         />
 
         {/* BUTTONS */}
@@ -137,57 +127,42 @@ function AudioDownloader() {
           <button
             onClick={getInfo}
             disabled={loading}
-            className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg disabled:opacity-50"
+            className="bg-blue-500 text-white px-4 py-2 rounded-lg"
           >
-            Get Info
+            {loading ? "Loading..." : "Get Info"}
           </button>
 
           {audio && (
             <button
               onClick={download}
-              className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg"
+              className="bg-green-500 text-white px-4 py-2 rounded-lg"
             >
               Download MP3
             </button>
           )}
         </div>
 
-        {/* LOADING */}
-        {loading && (
-          <p className="mt-4 text-gray-600 animate-pulse">
-            Fetching audio info...
-          </p>
-        )}
-
         {/* ERROR */}
         {error && (
-          <p className="mt-4 text-red-500 font-medium">
-            {error}
-          </p>
+          <p className="text-red-500 mt-3">{error}</p>
         )}
 
-        {/* AUDIO INFO */}
+        {/* INFO */}
         {audio && (
-          <div className="mt-6 border rounded-lg p-4">
-
-            <h3 className="font-semibold text-lg mb-2">
-              {audio.title}
-            </h3>
+          <div className="mt-5 border p-4 rounded-lg">
+            <h3 className="font-bold">{audio.title}</h3>
 
             {audio.thumbnail && (
               <img
                 src={audio.thumbnail}
-                alt="thumbnail"
-                className="mx-auto rounded-lg mb-3"
+                alt="thumb"
+                className="mx-auto mt-2 rounded"
               />
             )}
 
-            <p className="text-sm text-gray-600">
-              🎤 {audio.uploader}
-            </p>
-
-            <p className="text-sm text-gray-500">
-              ⏱ Duration: {formatTime(audio.duration)}
+            <p className="text-sm mt-2">🎤 {audio.uploader}</p>
+            <p className="text-sm">
+              ⏱ {formatTime(audio.duration)}
             </p>
           </div>
         )}
