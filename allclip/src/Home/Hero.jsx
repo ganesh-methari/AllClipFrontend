@@ -70,7 +70,7 @@ function App() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const API = "https://allclipbackend.onrender.com/music";
+const API = "https://allclipbackend.onrender.com/music";
   // const API = "http://localhost:5000/music";
 
   const getInfo = async () => {
