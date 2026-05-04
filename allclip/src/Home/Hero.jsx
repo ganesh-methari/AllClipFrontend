@@ -66,7 +66,7 @@ function AudioDownloader() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const API = "https://allclip.onrender.com/music";
+const API = "https://allclipbackend.onrender.com/music";
 
   const getInfo = async () => {
     if (!url) return setError("Enter URL");
