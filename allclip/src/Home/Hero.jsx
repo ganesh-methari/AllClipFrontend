@@ -329,6 +329,8 @@ import toast, {
 
 import {
   FiDownload,
+  FiMusic,
+  FiLoader,
 } from "react-icons/fi";
 
 function App() {
@@ -342,8 +344,9 @@ function App() {
   const [loading, setLoading] =
     useState(false);
 
+  // ✅ DEPLOYED BACKEND
   const API =
-    "http://192.168.0.106:5000/music";
+    "https://allclipbackend.onrender.com/music";
 
   // ==========================================
   // ✅ GET INFO
@@ -353,11 +356,13 @@ function App() {
     if (!url) {
 
       return toast.error(
-        "Paste a valid link 🔗"
+        "Paste a YouTube link 🔗"
       );
     }
 
     setLoading(true);
+
+    setVideo(null);
 
     try {
 
@@ -385,136 +390,131 @@ function App() {
   // ==========================================
   // ✅ DOWNLOAD
   // ==========================================
-const handleDownload = async (formatId) => {
+  const handleDownload =
+    async (formatId) => {
 
-  const toastId =
-    toast.loading(
-      "Downloading song 🎵"
-    );
+      const toastId =
+        toast.loading(
+          "Downloading song 🎵"
+        );
 
-  try {
+      try {
 
-    const response =
-      await axios.get(
-        `${API}/download`,
-        {
-          params: {
-            url,
-            format: formatId,
-          },
+        const response =
+          await axios.get(
+            `${API}/download`,
+            {
+              params: {
+                url,
+                format: formatId,
+              },
 
-          responseType: "blob",
-        }
-      );
+              responseType:
+                "blob",
+            }
+          );
 
-    // ✅ REAL NAME
-    let filename =
-      decodeURIComponent(
-        response.headers[
-          "x-file-name"
-        ] || "music.mp3"
-      );
+        // ✅ REAL NAME
+        let filename =
+          decodeURIComponent(
+            response.headers[
+            "x-file-name"
+            ] ||
+            "music.mp3"
+          );
 
-    // ✅ BLOB
-    const blob =
-      new Blob(
-        [response.data],
-        {
-          type: "audio/mpeg",
-        }
-      );
+        // ✅ FILE
+        const file =
+          new File(
+            [response.data],
+            filename,
+            {
+              type: "audio/mpeg",
+            }
+          );
 
-    const blobUrl =
-      window.URL.createObjectURL(
-        blob
-      );
+        // ✅ URL
+        const downloadUrl =
+          URL.createObjectURL(
+            file
+          );
 
-    // ✅ DOWNLOAD
-    const a =
-      document.createElement(
-        "a"
-      );
+        // ✅ DOWNLOAD
+        const a =
+          document.createElement(
+            "a"
+          );
 
-    a.href = blobUrl;
+        a.href =
+          downloadUrl;
 
-    a.download =
-      filename;
+        a.download =
+          filename;
 
-    document.body.appendChild(a);
+        document.body.appendChild(
+          a
+        );
 
-    a.click();
+        a.click();
 
-    a.remove();
+        a.remove();
 
-    window.URL.revokeObjectURL(
-      blobUrl
-    );
+        URL.revokeObjectURL(
+          downloadUrl
+        );
 
-    toast.success(
-      "Download completed ✅",
-      {
-        id: toastId,
+        toast.success(
+          "Download completed ✅",
+          {
+            id: toastId,
+          }
+        );
+
+      } catch (err) {
+
+        console.log(err);
+
+        toast.error(
+          "Download failed ❌",
+          {
+            id: toastId,
+          }
+        );
       }
-    );
-
-  } catch (err) {
-
-    console.log(err);
-
-    toast.error(
-      "Download failed ❌",
-      {
-        id: toastId,
-      }
-    );
-  }
-};
+    };
 
   return (
-    <div className="min-h-screen bg-[#050505] text-gray-200 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-black text-white flex items-center justify-center p-4">
 
       {/* ==========================================
           ✅ TOASTER
       ========================================== */}
       <Toaster
-
         position="top-center"
-
-        toastOptions={{
-
-          style: {
-
-            background:
-              "#111827",
-
-            color: "#fff",
-
-            border:
-              "1px solid #374151",
-          },
-        }}
       />
 
       {/* ==========================================
-          ✅ MAIN CARD
+          ✅ CARD
       ========================================== */}
-      <div className="w-full max-w-xl bg-gray-900/60 backdrop-blur-xl border border-gray-800 rounded-3xl p-6 sm:p-8 shadow-2xl">
+      <div className="w-full max-w-xl bg-zinc-900 border border-zinc-800 rounded-3xl p-6 shadow-2xl">
 
         {/* ==========================================
             ✅ HEADER
         ========================================== */}
         <div className="flex items-center justify-center gap-3 mb-8">
 
-          <div className="p-3 bg-emerald-500/10 rounded-2xl border border-emerald-500/20">
-            🎧
+          <div className="bg-emerald-500/20 p-3 rounded-2xl">
+
+            <FiMusic className="text-emerald-400 text-2xl" />
           </div>
 
-          <h1 className="text-3xl font-bold text-white">
+          <h1 className="text-3xl font-bold">
 
-            Audio
+            AllClip
 
             <span className="text-emerald-400">
-              Extract
+              {" "}
+              Music
             </span>
           </h1>
         </div>
@@ -527,20 +527,15 @@ const handleDownload = async (formatId) => {
           <input
             type="text"
 
-            autoFocus
+            value={url}
 
             placeholder="Paste YouTube link..."
 
-            value={url}
-
-            onChange={(e) => {
-
+            onChange={(e) =>
               setUrl(
                 e.target.value
-              );
-
-              setVideo(null);
-            }}
+              )
+            }
 
             onKeyDown={(e) => {
 
@@ -552,7 +547,7 @@ const handleDownload = async (formatId) => {
               }
             }}
 
-            className="w-full py-4 px-4 bg-gray-950/50 border border-gray-800 rounded-2xl focus:outline-none focus:ring-2 focus:ring-emerald-500/50 placeholder-gray-500"
+            className="w-full bg-zinc-950 border border-zinc-800 rounded-2xl px-4 py-4 outline-none focus:border-emerald-500"
           />
 
           {/* ==========================================
@@ -564,50 +559,55 @@ const handleDownload = async (formatId) => {
 
             disabled={loading}
 
-            className="w-full bg-gradient-to-r from-emerald-500 to-teal-600 hover:opacity-90 text-white font-semibold py-4 rounded-2xl transition-all duration-300 active:scale-[0.98] disabled:opacity-70"
+            className="bg-emerald-500 hover:bg-emerald-600 transition-all rounded-2xl py-4 font-semibold flex items-center justify-center gap-2"
           >
 
-            {loading
-              ? "Processing..."
-              : "Get Download Links"}
-
+            {loading ? (
+              <>
+                <FiLoader className="animate-spin" />
+                Processing...
+              </>
+            ) : (
+              <>
+                Get Download Links
+              </>
+            )}
           </button>
         </div>
 
         {/* ==========================================
-            ✅ RESULTS
+            ✅ VIDEO
         ========================================== */}
         {video && (
 
-          <div className="mt-8 pt-8 border-t border-gray-800">
+          <div className="mt-8 border-t border-zinc-800 pt-8">
 
             {/* ==========================================
-                ✅ VIDEO INFO
+                ✅ THUMBNAIL
             ========================================== */}
-            <div className="flex flex-col sm:flex-row gap-5 items-center sm:items-start mb-6">
+            <div className="flex flex-col sm:flex-row gap-5 mb-6">
 
-              {/* THUMBNAIL */}
-              <div className="w-full sm:w-40 rounded-xl overflow-hidden border border-gray-800 aspect-video">
+              <img
 
-                <img
+                src={
+                  video.thumbnail
+                }
 
-                  src={video.thumbnail}
+                alt={
+                  video.title
+                }
 
-                  alt={video.title}
+                className="w-full sm:w-44 rounded-2xl border border-zinc-800"
+              />
 
-                  className="w-full h-full object-cover"
-                />
-              </div>
+              <div>
 
-              {/* TITLE */}
-              <div className="w-full text-center sm:text-left">
-
-                <h2 className="text-lg font-bold text-white line-clamp-2">
+                <h2 className="font-bold text-lg line-clamp-2">
 
                   {video.title}
                 </h2>
 
-                <p className="text-sm text-emerald-400 mt-2">
+                <p className="text-emerald-400 mt-2 text-sm">
 
                   Ready to download ✅
                 </p>
@@ -622,51 +622,47 @@ const handleDownload = async (formatId) => {
               {video.formats.map(
                 (f, i) => (
 
-                <button
+                  <button
 
-                  key={i}
+                    key={i}
 
-                  onClick={() =>
-                    handleDownload(
-                      f.format_id
-                    )
-                  }
+                    onClick={() =>
+                      handleDownload(
+                        f.format_id
+                      )
+                    }
 
-                  className="group flex items-center justify-between p-4 bg-gray-950/50 hover:bg-gray-800 border border-gray-800 hover:border-emerald-500/50 rounded-2xl transition-all duration-300 text-left"
-                >
+                    className="bg-zinc-950 hover:bg-zinc-800 border border-zinc-800 hover:border-emerald-500 rounded-2xl p-4 flex items-center justify-between transition-all"
+                  >
 
-                  {/* LEFT */}
-                  <div className="flex flex-col gap-1">
+                    {/* LEFT */}
+                    <div className="text-left">
 
-                    <div className="flex items-center gap-2">
-
-                      <span className="text-base font-bold text-white uppercase">
+                      <h3 className="font-bold uppercase">
 
                         {f.ext}
-                      </span>
+                      </h3>
 
-                      <span className="px-2 py-0.5 text-[10px] font-bold bg-gray-800 text-gray-300 rounded-full">
+                      <p className="text-xs text-zinc-400">
 
                         {f.bitrate}
                         kbps
-                      </span>
+                      </p>
+
+                      <p className="text-xs text-zinc-500">
+
+                        {f.size}
+                      </p>
                     </div>
 
-                    <span className="text-xs text-gray-400">
+                    {/* RIGHT */}
+                    <div className="text-emerald-400 text-xl">
 
-                      Size:
-                      {" "}
-                      {f.size}
-                    </span>
-                  </div>
-
-                  {/* RIGHT */}
-                  <div className="text-emerald-400 text-xl">
-
-                    <FiDownload />
-                  </div>
-                </button>
-              ))}
+                      <FiDownload />
+                    </div>
+                  </button>
+                )
+              )}
             </div>
           </div>
         )}
@@ -674,7 +670,7 @@ const handleDownload = async (formatId) => {
         {/* ==========================================
             ✅ FOOTER
         ========================================== */}
-        <div className="mt-8 text-center text-xs text-gray-500">
+        <div className="mt-8 text-center text-xs text-zinc-500">
 
           Built with React + Node.js 💚
         </div>
