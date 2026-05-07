@@ -335,6 +335,9 @@ import {
 
 function App() {
 
+  // ==========================================
+  // ✅ STATES
+  // ==========================================
   const [url, setUrl] =
     useState("");
 
@@ -344,10 +347,15 @@ function App() {
   const [loading, setLoading] =
     useState(false);
 
-  // ✅ DEPLOYED BACKEND
-   const API = "https://allclipbackend.onrender.com/music";
+  const [downloading,
+    setDownloading] =
+    useState(false);
 
-    // const API = `http://localhost:5000/music`;
+  // ==========================================
+  // ✅ API
+  // ==========================================
+  const API =
+    "https://allclipbackend.onrender.com/music";
 
   // ==========================================
   // ✅ GET INFO
@@ -357,20 +365,26 @@ function App() {
     if (!url) {
 
       return toast.error(
-        "Paste a YouTube link 🔗"
+        "Paste media link 🔗"
       );
     }
 
-    setLoading(true);
-
-    setVideo(null);
-
     try {
+
+      setLoading(true);
+
+      setVideo(null);
 
       const res =
         await axios.post(
+
           `${API}/info`,
-          { url }
+
+          { url },
+
+          {
+            timeout: 30000,
+          }
         );
 
       setVideo(res.data);
@@ -380,12 +394,18 @@ function App() {
       console.log(err);
 
       toast.error(
-        err.response?.data?.error ||
-        "Failed to fetch video ❌"
-      );
-    }
 
-    setLoading(false);
+        err.response?.data?.error ||
+
+        err.message ||
+
+        "Failed to fetch media ❌"
+      );
+
+    } finally {
+
+      setLoading(false);
+    }
   };
 
   // ==========================================
@@ -401,9 +421,13 @@ function App() {
 
       try {
 
+        setDownloading(true);
+
         const response =
           await axios.get(
+
             `${API}/download`,
+
             {
               params: {
                 url,
@@ -412,35 +436,48 @@ function App() {
 
               responseType:
                 "blob",
+
+              timeout: 120000,
             }
           );
 
-        // ✅ REAL NAME
-        let filename =
+        // ==========================================
+        // ✅ FILE NAME
+        // ==========================================
+        const filename =
           decodeURIComponent(
+
             response.headers[
-            "x-file-name"
+              "x-file-name"
             ] ||
+
             "music.mp3"
           );
 
+        // ==========================================
         // ✅ FILE
+        // ==========================================
         const file =
           new File(
+
             [response.data],
+
             filename,
+
             {
-              type: "audio/mpeg",
+              type:
+                "audio/mpeg",
             }
           );
 
-        // ✅ URL
+        // ==========================================
+        // ✅ DOWNLOAD
+        // ==========================================
         const downloadUrl =
           URL.createObjectURL(
             file
           );
 
-        // ✅ DOWNLOAD
         const a =
           document.createElement(
             "a"
@@ -476,11 +513,21 @@ function App() {
         console.log(err);
 
         toast.error(
+
+          err.response?.data?.error ||
+
+          err.message ||
+
           "Download failed ❌",
+
           {
             id: toastId,
           }
         );
+
+      } finally {
+
+        setDownloading(false);
       }
     };
 
@@ -492,10 +539,25 @@ function App() {
       ========================================== */}
       <Toaster
         position="top-center"
+
+        toastOptions={{
+
+          style: {
+
+            background:
+              "#18181b",
+
+            color:
+              "#ffffff",
+
+            border:
+              "1px solid #27272a",
+          },
+        }}
       />
 
       {/* ==========================================
-          ✅ CARD
+          ✅ MAIN CARD
       ========================================== */}
       <div className="w-full max-w-xl bg-zinc-900 border border-zinc-800 rounded-3xl p-6 shadow-2xl">
 
@@ -528,15 +590,20 @@ function App() {
           <input
             type="text"
 
+            autoFocus
+
             value={url}
 
-            placeholder="Paste YouTube link..."
+            placeholder="Paste media link..."
 
-            onChange={(e) =>
+            onChange={(e) => {
+
               setUrl(
                 e.target.value
-              )
-            }
+              );
+
+              setVideo(null);
+            }}
 
             onKeyDown={(e) => {
 
@@ -548,7 +615,7 @@ function App() {
               }
             }}
 
-            className="w-full bg-zinc-950 border border-zinc-800 rounded-2xl px-4 py-4 outline-none focus:border-emerald-500"
+            className="w-full bg-zinc-950 border border-zinc-800 rounded-2xl px-4 py-4 outline-none focus:border-emerald-500 transition-all"
           />
 
           {/* ==========================================
@@ -560,7 +627,7 @@ function App() {
 
             disabled={loading}
 
-            className="bg-emerald-500 hover:bg-emerald-600 transition-all rounded-2xl py-4 font-semibold flex items-center justify-center gap-2"
+            className="bg-emerald-500 hover:bg-emerald-600 disabled:opacity-60 transition-all rounded-2xl py-4 font-semibold flex items-center justify-center gap-2"
           >
 
             {loading ? (
@@ -577,7 +644,7 @@ function App() {
         </div>
 
         {/* ==========================================
-            ✅ VIDEO
+            ✅ RESULT
         ========================================== */}
         {video && (
 
@@ -598,10 +665,10 @@ function App() {
                   video.title
                 }
 
-                className="w-full sm:w-44 rounded-2xl border border-zinc-800"
+                className="w-full sm:w-44 rounded-2xl border border-zinc-800 object-cover"
               />
 
-              <div>
+              <div className="flex-1">
 
                 <h2 className="font-bold text-lg line-clamp-2">
 
@@ -627,13 +694,17 @@ function App() {
 
                     key={i}
 
+                    disabled={
+                      downloading
+                    }
+
                     onClick={() =>
                       handleDownload(
                         f.format_id
                       )
                     }
 
-                    className="bg-zinc-950 hover:bg-zinc-800 border border-zinc-800 hover:border-emerald-500 rounded-2xl p-4 flex items-center justify-between transition-all"
+                    className="bg-zinc-950 hover:bg-zinc-800 disabled:opacity-60 border border-zinc-800 hover:border-emerald-500 rounded-2xl p-4 flex items-center justify-between transition-all"
                   >
 
                     {/* LEFT */}
@@ -659,7 +730,14 @@ function App() {
                     {/* RIGHT */}
                     <div className="text-emerald-400 text-xl">
 
-                      <FiDownload />
+                      {downloading ? (
+
+                        <FiLoader className="animate-spin" />
+
+                      ) : (
+
+                        <FiDownload />
+                      )}
                     </div>
                   </button>
                 )
