@@ -345,8 +345,9 @@ function App() {
     useState(false);
 
   // ✅ DEPLOYED BACKEND
-  const API =
-    "https://allclipbackend.onrender.com/music";
+   const API = "https://allclipbackend.onrender.com/music";
+
+    // const API = `http://localhost:5000/music`;
 
   // ==========================================
   // ✅ GET INFO
